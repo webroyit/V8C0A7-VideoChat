@@ -6,6 +6,7 @@ const myPeer = new Peer(undefined, {
 });
 const myVideo = document.createElement('video');
 myVideo.muted = true;       // Disable on listening to your own video
+const peers = {};
 
 // Conntect to your video
 navigator.mediaDevices.getUserMedia({
@@ -29,6 +30,10 @@ navigator.mediaDevices.getUserMedia({
     socket.on('user-connected', userId => {
         connectToNewUser(userId, stream);
     })
+});
+
+socket.on('user-disconnected', userId => {
+    if(peers[userId]) peers[userId].close();
 })
 
 myPeer.on('open', id => {
@@ -61,5 +66,7 @@ function connectToNewUser(userId, stream){
     // Close a video when an user leave
     call.on('close', () => {
         video.remove();
-    })
+    });
+
+    peers[userId] = call;
 }
