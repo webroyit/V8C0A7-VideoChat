@@ -14,8 +14,16 @@ navigator.mediaDevices.getUserMedia({
 }).then(stream => {
     addVideoStream(myVideo, stream);
 
+    // Listen for another user video call
     myPeer.on('call', call => {
-        call.answer(stream)
+        // Send your video
+        call.answer(stream);
+
+        // Make sure the another user get your video
+        const video = document.createElement('video');
+        call.on('stream', userVideoStream => {
+            addVideoStream(video, userVideoStream);
+        })
     })
 
     socket.on('user-connected', userId => {
